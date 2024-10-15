@@ -35,10 +35,13 @@ module Myapp
       g.factory_bot false
     end
 
-    config.session_store :cookie_store, key: '_interslice_session'
+    config.session_store :cookie_store, key: '_twitter_spa_session'
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use config.session_store, config.session_options
 
-    config.i18n.default_locale = :ja
+
+    config.i18n.default_locale = :ja # デフォルトのlocaleを日本語(:ja)にする
+
+    config.i18n.load_path += Dir[Rails.root.join('config', 'locales', '**', '*.{rb,yml}').to_s]
   end
 end
