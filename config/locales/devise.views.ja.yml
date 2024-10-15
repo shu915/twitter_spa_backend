@@ -141,9 +141,9 @@ ja:
       not_saved:
         one: エラーが発生したため %{resource} は保存されませんでした。
         other: "%{count} 件のエラーが発生したため %{resource} は保存されませんでした。"
-      blank: を入力してください
-      taken: はすでに使用されています
-      too_short: は短すぎます
-      too_long: は長すぎます
+      # blank: を入力してください
+      # taken: はすでに使用されています
+      # too_short: は短すぎます
+      # too_long: は長すぎます
       confirmation: が一致しません
   

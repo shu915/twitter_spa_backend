@@ -58,5 +58,5 @@ DeviseTokenAuth.setup do |config|
 
   config.change_headers_on_each_request = false
 
-  config.default_confirm_success_url = 'http://localhost:5173/home'
+  config.default_confirm_success_url = ENV['DEFAULT_CONFIRM_SUCCESS_URL'] || 'http://localhost:5173/home'
 end
