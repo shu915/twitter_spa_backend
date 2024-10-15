@@ -10,5 +10,4 @@ class User < ApplicationRecord
 
   validates :name, presence: true, length: { in: 3..16 }
   validates :birthday, presence: true
-
 end
