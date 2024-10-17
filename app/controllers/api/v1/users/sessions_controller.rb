@@ -15,17 +15,17 @@ module Api
             cookies[:access_token] = {
               value: token['access-token'],
               httponly: true,
-              secure: Rails.env.production?,  # HTTPSのみで送信（本番環境では必須）
-              same_site: :strict               # サイト間リクエストの制御
+              secure: Rails.env.production?, # HTTPSのみで送信（本番環境では必須）
+              same_site: :strict # サイト間リクエストの制御
             }
-            
+
             cookies[:client] = {
               value: token['client'],
               httponly: true,
               secure: Rails.env.production?,
               same_site: :strict
             }
-            
+
             cookies[:uid] = {
               value: token['uid'],
               httponly: true,
@@ -35,7 +35,7 @@ module Api
             # トークン情報をJSON形式で返す
             render json: {
               message: 'ログイン成功',
-              user: user,
+              user:
             }, status: :ok
           else
             render json: { message: 'ログイン失敗', errors: 'メールアドレスかパスワードが間違っています' }, status: :unauthorized
