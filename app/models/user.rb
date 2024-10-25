@@ -19,7 +19,7 @@ class User < ApplicationRecord
   after_create :attach_default_images
 
   def profile_image_url
-    Rails.application.routes.url_helpers.rails_blob_url(profile_image) if profile_image.attached?
+    Rails.application.routes.url_helpers.rails_blob_url(profile_image, only_path: true) if profile_image.attached?
   end
 
   def header_image_url
