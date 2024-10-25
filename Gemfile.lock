@@ -126,7 +126,6 @@ GEM
       letter_opener (~> 1.9)
       railties (>= 6.1)
       rexml
-    localhost (1.3.1)
     logger (1.6.1)
     loofah (2.21.3)
       crass (~> 1.0.2)
@@ -280,7 +279,6 @@ DEPENDENCIES
   devise_token_auth
   factory_bot_rails
   letter_opener_web
-  localhost
   pg (~> 1.1)
   puma (~> 5.0)
   rack-cors
