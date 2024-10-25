@@ -10,7 +10,8 @@ Rails.application.routes.draw do
         sessions: 'api/v1/users/sessions'
       }
 
-      get 'tweets', to: 'tweets#index'
+      resources :tweets, only: %i[index create]
+      resources :images, only: [:create]
     end
   end
 end
