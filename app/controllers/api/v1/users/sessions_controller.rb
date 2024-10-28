@@ -12,30 +12,23 @@ module Api
             # トークンを生成
             token = user.create_new_auth_token
 
-            cookies[:access_token] = {
-              value: token['access-token'],
-              httponly: true,
-              secure: Rails.env.production?, # HTTPSのみで送信（本番環境では必須）
-              same_site: :strict # サイト間リクエストの制御
-            }
-
-            cookies[:client] = {
-              value: token['client'],
-              httponly: true,
-              secure: Rails.env.production?,
-              same_site: :strict
-            }
-
-            cookies[:uid] = {
-              value: token['uid'],
-              httponly: true,
-              secure: Rails.env.production?,
-              same_site: :strict
-            }
             # トークン情報をJSON形式で返す
             render json: {
               message: 'ログイン成功',
-              user:
+              user: {
+                id: user.id,
+                account_name: user.account_name,
+                display_name: user.display_name,
+                birthday: user.birthday,
+                bio: user.bio,
+                location: user.location,
+                website: user.website,
+                profile_image_url: user.profile_image_url,
+                header_image_url: user.header_image_url
+              },
+              access_token: token['access-token'],
+              client: token['client'],
+              uid: token['uid']
             }, status: :ok
           else
             render json: { message: 'ログイン失敗', errors: 'メールアドレスかパスワードが間違っています' }, status: :unauthorized
