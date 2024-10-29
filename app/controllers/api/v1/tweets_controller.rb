@@ -6,8 +6,22 @@ module Api
       before_action :authenticate_api_v1_user!
 
       def index
-        tweets = Tweet.all.order(created_at: :desc)
-        render json: { tweets: }, status: :ok
+        limit = params[:limit] || 20
+        offset = params[:offset] || 0
+
+        tweets = Tweet.includes(user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
+                      .order(created_at: :desc).offset(offset).limit(limit)
+
+        total_count = Tweet.count
+
+        render json: { tweets: tweets.map do |tweet|
+                                 tweet.as_json(include: { user: { only: %i[id display_name account_name] } })
+                                      .merge(
+                                        image_url: tweet.image&.file&.attached? ? url_for(tweet.image.file) : nil,
+                                        user_profile_image_url: tweet.user.profile_image.attached? ? url_for(tweet.user.profile_image) : nil
+                                      )
+                               end,
+                       total_count: }, status: :ok
       end
 
       def create
