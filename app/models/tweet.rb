@@ -2,7 +2,7 @@
 
 class Tweet < ApplicationRecord
   belongs_to :user
-  has_many :images, dependent: :destroy
+  has_one :image, dependent: :destroy
 
   validates :content, presence: true, length: { maximum: 140 }
 end

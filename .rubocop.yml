@@ -18,3 +18,5 @@ Metrics/AbcSize:
   Max: 30
 Rails/I18nLocaleTexts:
   Enabled: false
+Metrics/CyclomaticComplexity:
+  Max: 10

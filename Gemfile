@@ -54,6 +54,8 @@ group :development, :test do
   gem 'rubocop-hc', require: false, github: 'ihatov08/rubocop-hc'
   gem 'rubocop-rails', require: false
   gem 'rubocop-rspec', require: false
+
+  gem 'bullet'
 end
 
 group :development do

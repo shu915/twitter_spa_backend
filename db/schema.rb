@@ -44,7 +44,6 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_013435) do
 
   create_table "images", force: :cascade do |t|
     t.bigint "tweet_id", null: false
-    t.string "file"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["tweet_id"], name: "index_images_on_tweet_id"
@@ -55,6 +54,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_013435) do
     t.text "content", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["user_id", "created_at"], name: "index_tweets_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_tweets_on_user_id"
   end
 

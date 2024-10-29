@@ -23,6 +23,7 @@ module Api
                 bio: user.bio,
                 location: user.location,
                 website: user.website,
+                email: user.email,
                 profile_image_url: user.profile_image_url,
                 header_image_url: user.header_image_url
               },
@@ -33,6 +34,16 @@ module Api
           else
             render json: { message: 'ログイン失敗', errors: 'メールアドレスかパスワードが間違っています' }, status: :unauthorized
           end
+        end
+
+        def destroy
+          # トークンの無効化（例: Devise Token Authを使用している場合）
+          if current_api_v1_user
+            current_api_v1_user.tokens = {}
+            current_api_v1_user.save
+          end
+
+          render json: { message: 'ログアウト成功' }, status: :ok
         end
 
         private
