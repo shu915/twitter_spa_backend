@@ -12,7 +12,13 @@
   user = User.create(account_name: "user#{i + 1}", display_name: "user#{i + 1}",
                      birthday: '2000-01-01', email: "user#{i + 1}@example.com", password: 'password')
 
-  50.times do |j|
-    user.tweets.create(content: "Hello, world! #{j}")
+  tweet_data = 50.times.map do |j|
+    {
+      user_id: user.id,
+      content: "Hello, world! #{j}",
+      created_at: Time.current,
+      updated_at: Time.current
+    }
   end
+  Tweet.insert_all(tweet_data)
 end
