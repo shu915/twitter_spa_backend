@@ -4,6 +4,7 @@ module Api
   module V1
     module Users
       class SessionsController < ApplicationController
+        before_action :authenticate_api_v1_user!, only: [:destroy]
         include ActionController::Cookies
 
         def create
@@ -41,9 +42,10 @@ module Api
           if current_api_v1_user
             current_api_v1_user.tokens = {}
             current_api_v1_user.save
+            render json: { message: 'ログアウト成功' }, status: :ok
+          else
+            render json: { message: 'ログアウト失敗' }, status: :unauthorized
           end
-
-          render json: { message: 'ログアウト成功' }, status: :ok
         end
 
         private

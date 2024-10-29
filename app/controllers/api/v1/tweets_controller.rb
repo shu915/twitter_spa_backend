@@ -15,13 +15,14 @@ module Api
         total_count = Tweet.count
 
         render json: { tweets: tweets.map do |tweet|
-                                 tweet.as_json(include: { user: { only: %i[id display_name account_name] } })
-                                      .merge(
-                                        image_url: tweet.image&.file&.attached? ? url_for(tweet.image.file) : nil,
-                                        user_profile_image_url: tweet.user.profile_image.attached? ? url_for(tweet.user.profile_image) : nil
-                                      )
-                               end,
-                       total_count: }, status: :ok
+                tweet.as_json(include: { user: { only: %i[id display_name account_name] } })
+                    .merge(
+                      image_url: tweet.image&.file&.attached? ? url_for(tweet.image.file) : nil,
+                      user_profile_image_url: tweet.user.profile_image.attached? ? url_for(tweet.user.profile_image) : nil
+                    )
+              end,
+          total_count: total_count
+        }, status: :ok
       end
 
       def create
