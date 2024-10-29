@@ -20,3 +20,5 @@ Rails/I18nLocaleTexts:
   Enabled: false
 Metrics/CyclomaticComplexity:
   Max: 10
+Rails/SkipsModelValidations:
+  Enabled: false
