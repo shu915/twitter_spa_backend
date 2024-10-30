@@ -8,7 +8,7 @@ module Api
       def create
         # 画像ファイルを受け取り、Active Storageで保存
         tweet = Tweet.find(image_params[:tweet_id])
-        image = tweet.images.build(file: image_params[:image])
+        image = tweet.build_image(file: image_params[:image])
 
         if image.save
           # 保存後に画像のURLを返す
