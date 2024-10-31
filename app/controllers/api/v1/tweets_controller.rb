@@ -14,23 +14,17 @@ module Api
 
         total_count = Tweet.count
 
-        render json: { tweets: tweets.map do |tweet|
-                                 tweet.as_json(include: { user: { only: %i[id display_name account_name] } })
-                                      .merge(
-                                        image_url: tweet.image&.file&.attached? ? url_for(tweet.image.file) : nil,
-                                        user_profile_image_url: tweet.user.profile_image.attached? ? url_for(tweet.user.profile_image) : nil
-                                      )
-                               end,
+        render json: { tweets: tweets.map { |tweet| tweet_with_user_and_image_url(tweet) },
                        total_count: }, status: :ok
       end
 
       def show
-        tweet = Tweet.find(params[:id])
-        render json: tweet.as_json(include: { user: { only: %i[id display_name account_name] } })
-                          .merge(
-                            image_url: tweet.image&.file&.attached? ? url_for(tweet.image.file) : nil,
-                            user_profile_image_url: tweet.user.profile_image.attached? ? url_for(tweet.user.profile_image) : nil
-                          ), status: :ok
+        tweet = Tweet.includes(user: [profile_image_attachment: :blob], image: [file_attachment: :blob]).find(params[:id])
+        if tweet
+          render json: tweet_with_user_and_image_url(tweet), status: :ok
+        else
+          render json: { message: 'ツイートが見つかりません' }, status: :not_found
+        end
       end
 
       def create
@@ -46,6 +40,14 @@ module Api
 
       def tweet_params
         params.require(:tweet).permit(:content, :image_url)
+      end
+
+      def tweet_with_user_and_image_url(tweet)
+        tweet.as_json(include: { user: { only: %i[id display_name account_name] } })
+             .merge(
+               image_url: tweet.image&.file&.attached? ? url_for(tweet.image.file) : nil,
+               user_profile_image_url: tweet.user.profile_image.attached? ? url_for(tweet.user.profile_image) : nil
+             )
       end
     end
   end
