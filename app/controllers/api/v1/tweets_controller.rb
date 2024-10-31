@@ -24,6 +24,15 @@ module Api
                        total_count: }, status: :ok
       end
 
+      def show
+        tweet = Tweet.find(params[:id])
+        render json: tweet.as_json(include: { user: { only: %i[id display_name account_name] } })
+                          .merge(
+                            image_url: tweet.image&.file&.attached? ? url_for(tweet.image.file) : nil,
+                            user_profile_image_url: tweet.user.profile_image.attached? ? url_for(tweet.user.profile_image) : nil
+                          ), status: :ok
+      end
+
       def create
         tweet = current_api_v1_user.tweets.new(tweet_params)
         if tweet.save
