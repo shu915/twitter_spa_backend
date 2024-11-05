@@ -16,18 +16,10 @@ module Api
             # トークン情報をJSON形式で返す
             render json: {
               message: 'ログイン成功',
-              user: {
-                id: user.id,
-                account_name: user.account_name,
-                display_name: user.display_name,
-                birthday: user.birthday,
-                bio: user.bio,
-                location: user.location,
-                website: user.website,
-                email: user.email,
-                profile_image_url: user.profile_image_url,
-                header_image_url: user.header_image_url
-              },
+              user: user.as_json.merge(
+                header_image_url: user.header_image.attached? ? url_for(user.header_image) : nil,
+                profile_image_url: user.profile_image.attached? ? url_for(user.profile_image) : nil
+              ),
               access_token: token['access-token'],
               client: token['client'],
               uid: token['uid']

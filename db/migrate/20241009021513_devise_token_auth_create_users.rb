@@ -33,9 +33,9 @@ class DeviseTokenAuthCreateUsers < ActiveRecord::Migration[7.0]
       t.string :account_name, null: false
       t.string :display_name, null: false
       t.string :email, null: false
-      t.text :bio
-      t.string :location
-      t.string :website
+      t.text :bio, null: false, default: ''
+      t.string :location, null: false, default: ''
+      t.string :website, null: false, default: ''
       t.date :birthday, null: false
 
       ## Tokens

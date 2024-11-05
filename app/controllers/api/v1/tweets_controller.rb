@@ -9,10 +9,11 @@ module Api
         limit = params[:limit] || 20
         offset = params[:offset] || 0
 
-        tweets = Tweet.includes(user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
-                      .order(created_at: :desc).offset(offset).limit(limit)
-
-        total_count = Tweet.count
+        if params[:user_id]
+          tweets, total_count = fetch_user_tweets_with_count(params[:user_id], limit, offset)
+        else
+          tweets, total_count = fetch_all_tweets_with_count(limit, offset)
+        end
 
         render json: { tweets: tweets.map { |tweet| tweet_with_user_and_image_url(tweet) },
                        total_count: }, status: :ok
@@ -48,6 +49,21 @@ module Api
                image_url: tweet.image&.file&.attached? ? url_for(tweet.image.file) : nil,
                user_profile_image_url: tweet.user.profile_image.attached? ? url_for(tweet.user.profile_image) : nil
              )
+      end
+
+      def fetch_all_tweets_with_count(limit, offset)
+        tweets = Tweet.includes(user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
+                      .order(created_at: :desc).offset(offset).limit(limit)
+        total_count = Tweet.count
+        [tweets, total_count]
+      end
+
+      def fetch_user_tweets_with_count(user_id, limit, offset)
+        tweets = Tweet.includes(user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
+                      .where(user_id:)
+                      .order(created_at: :desc).offset(offset).limit(limit)
+        total_count = Tweet.where(user_id:).count
+        [tweets, total_count]
       end
     end
   end

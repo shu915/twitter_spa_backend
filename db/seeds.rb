@@ -10,7 +10,9 @@
 
 3.times do |i|
   user = User.create(account_name: "user#{i + 1}", display_name: "user#{i + 1}",
-                     birthday: '2000-01-01', email: "user#{i + 1}@example.com", password: 'password')
+                     birthday: '2000-01-01', email: "user#{i + 1}@example.com", password: 'password',
+                     bio: "私は現在ハピネスチェーンでプログラミングを学んでいます。\nRailsとReactを使って、SPAを作っています。",
+                     location: 'Tokyo, Japan', website: 'https://example.com')
 
   tweet_data = 50.times.map do |j|
     {

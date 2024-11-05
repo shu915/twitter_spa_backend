@@ -73,9 +73,9 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_013435) do
     t.string "account_name", null: false
     t.string "display_name", null: false
     t.string "email", null: false
-    t.text "bio"
-    t.string "location"
-    t.string "website"
+    t.text "bio", default: "", null: false
+    t.string "location", default: "", null: false
+    t.string "website", default: "", null: false
     t.date "birthday", null: false
     t.json "tokens"
     t.datetime "created_at", null: false
