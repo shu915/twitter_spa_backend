@@ -5,6 +5,10 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      resources :users, only: %i[show] do
+        resources :tweets, only: %i[index]
+      end
+
       mount_devise_token_auth_for 'User', at: 'users', controllers: {
         registrations: 'api/v1/users/registrations',
         sessions: 'api/v1/users/sessions'
@@ -12,6 +16,7 @@ Rails.application.routes.draw do
 
       resources :tweets, only: %i[index create show]
       resources :images, only: [:create]
+      resources :profiles, only: %i[show update]
     end
   end
 end
