@@ -12,6 +12,12 @@ class User < ApplicationRecord
   validates :display_name, presence: true, length: { in: 3..16 }
   validates :birthday, presence: true
 
+  validates :bio, length: { maximum: 160 }
+  validates :location, length: { maximum: 30 }
+  validates :website, length: { maximum: 100 }, format: { with: /\A#{URI.regexp(['http', 'https'])}\z/, message: 'は有効なURLではありません' }, allow_blank: true
+
+  validates :profile_image, :header_image, content_type: { in: ['image/png', 'image/jpg', 'image/jpeg', 'image/gif', 'image/webp'], message: 'は許可されていないファイル形式です' },
+                                           size: { less_than: 5.megabytes, message: 'は5MB以下である必要があります' }
   has_many :tweets, dependent: :destroy
   has_one_attached :profile_image, dependent: :destroy
   has_one_attached :header_image, dependent: :destroy
