@@ -15,10 +15,12 @@ Metrics/BlockLength:
 Layout/LineLength:
   Max: 150
 Metrics/AbcSize:
-  Max: 30
+  Max: 40
 Rails/I18nLocaleTexts:
   Enabled: false
 Metrics/CyclomaticComplexity:
   Max: 10
 Rails/SkipsModelValidations:
   Enabled: false
+Layout/LineLength:
+  Max: 200

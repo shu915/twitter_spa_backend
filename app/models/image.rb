@@ -5,7 +5,5 @@ class Image < ApplicationRecord
   belongs_to :tweet
 
   validates :file, presence: true, content_type: { in: ['image/png', 'image/jpg', 'image/jpeg', 'image/gif', 'image/webp'], message: 'は許可されていないファイル形式です' },
-                    size: { less_than: 5.megabytes, message: 'は5MB以下である必要があります' }
-  private
-
+                   size: { less_than: 5.megabytes, message: 'は5MB以下である必要があります' }
 end
