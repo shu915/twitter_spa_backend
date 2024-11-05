@@ -32,7 +32,6 @@ module Api
       end
 
       def update_profile(user)
-        User.transaction do
           user.profile_image.attach(profile_params[:profile_image]) if profile_params[:profile_image].present?
           user.header_image.attach(profile_params[:header_image]) if profile_params[:header_image].present?
 
@@ -42,8 +41,7 @@ module Api
               profile_image_url: user.profile_image.attached? ? url_for(user.profile_image) : nil
             ), status: :ok
           else
-            render json: { error: user.errors.messages }, status: :unprocessable_entity
-          end
+          render json: { error: user.errors.messages }, status: :unprocessable_entity
         end
       end
     end
