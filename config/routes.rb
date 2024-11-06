@@ -14,7 +14,7 @@ Rails.application.routes.draw do
         sessions: 'api/v1/users/sessions'
       }
 
-      resources :tweets, only: %i[index create show]
+      resources :tweets, only: %i[index create show destroy]
       resources :images, only: [:create]
       resources :profiles, only: %i[show update]
     end
