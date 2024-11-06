@@ -48,8 +48,8 @@ module Api
 
             tweet.destroy
             render json: { message: 'ツイートを削除しました' }, status: :ok
-          rescue => e
-            render json: { message: 'ツイートの削除に失敗しました' }, status: :unprocessable_entity
+          rescue => ActiveRecord::RecordNotFound
+            render json: { message: 'ツイートが見つかりません' }, status: :not_found
           end
         end
       end
