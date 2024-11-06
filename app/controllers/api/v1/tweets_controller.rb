@@ -40,11 +40,6 @@ module Api
       def destroy
         tweet = Tweet.find(params[:id])
 
-        if tweet.nil?
-          render json: { message: 'ツイートが見つかりません' }, status: :not_found
-          return
-        end
-
         if current_api_v1_user.id != tweet.user_id
           render json: { message: 'ツイートの削除に失敗しました' }, status: :unauthorized
           return
