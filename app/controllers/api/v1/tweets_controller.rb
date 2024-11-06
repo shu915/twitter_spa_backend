@@ -38,13 +38,22 @@ module Api
       end
 
       def destroy
-        if current_api_v1_user.id != Tweet.find(params[:id]).user_id
+        tweet = Tweet.find(params[:id])
+
+        if tweet.nil?
+          render json: { message: 'ツイートが見つかりません' }, status: :not_found
+          return
+        end
+
+        if current_api_v1_user.id != tweet.user_id
           render json: { message: 'ツイートの削除に失敗しました' }, status: :unauthorized
           return
         end
-        tweet = Tweet.find(params[:id])
-        tweet.destroy
-        render json: { message: 'ツイートを削除しました' }, status: :ok
+        if tweet.destroy
+          render json: { message: 'ツイートを削除しました' }, status: :ok
+        else
+          render json: { message: 'ツイートの削除に失敗しました' }, status: :unprocessable_entity
+        end
       end
 
       private
