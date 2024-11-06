@@ -44,7 +44,6 @@ module Api
 
             if current_api_v1_user.id != tweet.user_id
               render json: { message: 'ツイートの削除に失敗しました' }, status: :unauthorized
-              return
             end
 
             tweet.destroy
