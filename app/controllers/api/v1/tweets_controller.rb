@@ -37,6 +37,19 @@ module Api
         end
       end
 
+      def destroy
+        ActiveRecord::Base.transaction do
+          tweet = Tweet.find(params[:id])
+
+          render json: { message: 'ツイートの削除に失敗しました' }, status: :unauthorized if current_api_v1_user.id != tweet.user_id
+
+          tweet.destroy!
+          render json: { message: 'ツイートを削除しました' }, status: :ok
+        rescue StandardError
+          render json: { message: 'ツイートの削除に失敗しました' }, status: :unprocessable_entity
+        end
+      end
+
       private
 
       def tweet_params
