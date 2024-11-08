@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_10_22_013435) do
+ActiveRecord::Schema[7.0].define(version: 2024_11_07_011600) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -47,6 +47,15 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_013435) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["tweet_id"], name: "index_images_on_tweet_id"
+  end
+
+  create_table "replies", force: :cascade do |t|
+    t.bigint "parent_tweet_id", null: false
+    t.bigint "child_tweet_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["child_tweet_id"], name: "index_replies_on_child_tweet_id"
+    t.index ["parent_tweet_id"], name: "index_replies_on_parent_tweet_id"
   end
 
   create_table "tweets", force: :cascade do |t|
@@ -90,5 +99,7 @@ ActiveRecord::Schema[7.0].define(version: 2024_10_22_013435) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "images", "tweets"
+  add_foreign_key "replies", "tweets", column: "child_tweet_id"
+  add_foreign_key "replies", "tweets", column: "parent_tweet_id"
   add_foreign_key "tweets", "users"
 end
