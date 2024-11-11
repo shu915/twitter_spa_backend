@@ -3,6 +3,8 @@
 module Api
   module V1
     class TweetsController < ApplicationController
+      include TweetWithUserAndImage
+
       before_action :authenticate_api_v1_user!
 
       def index
@@ -54,14 +56,6 @@ module Api
 
       def tweet_params
         params.require(:tweet).permit(:content, :image_url)
-      end
-
-      def tweet_with_user_and_image_url(tweet)
-        tweet.as_json(include: { user: { only: %i[id display_name account_name] } })
-             .merge(
-               image_url: tweet.image&.file&.attached? ? url_for(tweet.image.file) : nil,
-               user_profile_image_url: tweet.user.profile_image.attached? ? url_for(tweet.user.profile_image) : nil
-             )
       end
 
       def fetch_all_tweets_with_count(limit, offset)
