@@ -23,8 +23,22 @@ module Api
 
       def show
         tweet = Tweet.includes(user: [profile_image_attachment: :blob], image: [file_attachment: :blob]).find(params[:id])
+        ancestors = Tweet.includes(
+          user: { profile_image_attachment: :blob },
+          image: { file_attachment: :blob }
+        ).where(id: tweet.ancestor_ids)
+
+        replies = Tweet.includes(
+          user: { profile_image_attachment: :blob },
+          image: { file_attachment: :blob }
+        ).where(id: tweet.child_ids)
+
         if tweet
-          render json: tweet_with_user_and_image_url(tweet), status: :ok
+          render json: {
+            tweet: tweet_with_user_and_image_url(tweet),
+            ancestors: ancestors.map { |ancestor| tweet_with_user_and_image_url(ancestor) },
+            replies: replies.map { |reply| tweet_with_user_and_image_url(reply) }
+          }, status: :ok
         else
           render json: { message: 'ツイートが見つかりません' }, status: :not_found
         end

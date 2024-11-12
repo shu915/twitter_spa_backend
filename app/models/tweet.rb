@@ -11,4 +11,22 @@ class Tweet < ApplicationRecord
   has_one :parent, through: :replies_as_child, source: :parent_tweet
 
   validates :content, presence: true, length: { maximum: 140 }
+
+  def ancestor_ids
+    ids = []
+    current_id = id
+
+    while (parent_id = Reply.where(child_tweet_id: current_id)
+                         .limit(1)
+                         .pick(:parent_tweet_id))
+      ids << parent_id
+      current_id = parent_id
+    end
+
+    ids
+  end
+
+  def child_ids
+    Reply.where(parent_tweet_id: id).pluck(:child_tweet_id)
+  end
 end
