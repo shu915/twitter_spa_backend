@@ -22,3 +22,5 @@ Rails/SkipsModelValidations:
   Enabled: false
 Layout/LineLength:
   Max: 200
+RailsSpecificActionName:
+  Enabled: false
