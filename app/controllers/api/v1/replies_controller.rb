@@ -7,14 +7,6 @@ module Api
 
       before_action :authenticate_api_v1_user!
 
-      def index
-        selected_tweet = Tweet.find(params[:tweet_id])
-        ancestors = fetch_ancestor_tweet(selected_tweet)
-        replies = fetch_children_tweets(selected_tweet)
-        render json: { ancestors: ancestors.map { |tweet| tweet_with_user_and_image_url(tweet) },
-                       replies: replies.map { |tweet| tweet_with_user_and_image_url(tweet) } }
-      end
-
       def create
         parent_tweet = Tweet.find(params[:tweet_id])
         child_tweet = parent_tweet.children.build(reply_params)
@@ -30,20 +22,6 @@ module Api
 
       def reply_params
         params.require(:reply).permit(:content).merge(user_id: current_api_v1_user.id)
-      end
-
-      def fetch_ancestor_tweet(tweet)
-        ancestors = []
-
-        while tweet.parent
-          ancestors.unshift(tweet.parent)
-          tweet = tweet.parent
-        end
-        ancestors
-      end
-
-      def fetch_children_tweets(tweet)
-        tweet.children
       end
     end
   end
