@@ -10,9 +10,9 @@ module Api
       def index
         selected_tweet = Tweet.find(params[:tweet_id])
         ancestors = fetch_ancestor_tweet(selected_tweet)
-        children = fetch_children_tweets(selected_tweet)
+        replies = fetch_children_tweets(selected_tweet)
         render json: { ancestors: ancestors.map { |tweet| tweet_with_user_and_image_url(tweet) },
-                       children: children.map { |tweet| tweet_with_user_and_image_url(tweet) } }
+                       replies: replies.map { |tweet| tweet_with_user_and_image_url(tweet) } }
       end
 
       def create
