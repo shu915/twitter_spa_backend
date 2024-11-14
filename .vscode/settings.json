@@ -1,0 +1,10 @@
+// {
+//   "rubyLsp.formatter": "rubocop",
+//   "rubyLsp.rubyVersionManager": {
+//     "identifier": "auto"
+// },
+//   "[ruby]": {
+//   "editor.defaultFormatter": "Shopify.ruby-lsp",
+//   "editor.formatOnSave": true
+//   }
+// }
