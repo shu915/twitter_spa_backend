@@ -11,14 +11,23 @@ module Api
         limit = params[:limit] || 20
         offset = params[:offset] || 0
 
-        if params[:user_id]
-          tweets, total_count = fetch_user_tweets_with_count(params[:user_id], limit, offset)
-        else
-          tweets, total_count = fetch_all_tweets_with_count(limit, offset)
-        end
+        tweets, total_count = if params[:user_id]
+                                case params[:tab]
+                                when 'tweet'
+                                  fetch_user_tweets_with_count(params[:user_id], limit, offset)
+                                when 'reply'
+                                  fetch_user_replies_with_count(params[:user_id], limit, offset)
+                                when 'like' # まだ実装保留中なのでダミーを設置
+                                  fetch_user_likes_with_count(params[:user_id], limit, offset)
+                                end
+                              else
+                                fetch_all_tweets_with_count(limit, offset)
+                              end
 
-        render json: { tweets: tweets.map { |tweet| tweet_with_user_and_image_url(tweet) },
-                       total_count: }, status: :ok
+        render json: {
+          tweets: tweets.map { |tweet| tweet_with_user_and_image_url(tweet) },
+          total_count:
+        }, status: :ok
       end
 
       def show
@@ -33,15 +42,13 @@ module Api
           image: { file_attachment: :blob }
         ).where(id: tweet.child_ids)
 
-        if tweet
-          render json: {
-            tweet: tweet_with_user_and_image_url(tweet),
-            ancestors: ancestors.map { |ancestor| tweet_with_user_and_image_url(ancestor) },
-            replies: replies.map { |reply| tweet_with_user_and_image_url(reply) }
-          }, status: :ok
-        else
-          render json: { message: 'ツイートが見つかりません' }, status: :not_found
-        end
+        render json: {
+          tweet: tweet_with_user_and_image_url(tweet),
+          ancestors: ancestors.map { |ancestor| tweet_with_user_and_image_url(ancestor) },
+          replies: replies.map { |reply| tweet_with_user_and_image_url(reply) }
+        }, status: :ok
+      rescue ActiveRecord::RecordNotFound
+        render json: { message: 'ツイートが見つかりません' }, status: :not_found
       end
 
       def create
@@ -84,6 +91,24 @@ module Api
                       .where(user_id:)
                       .order(created_at: :desc).offset(offset).limit(limit)
         total_count = Tweet.where(user_id:).count
+        [tweets, total_count]
+      end
+
+      def fetch_user_replies_with_count(user_id, limit, offset)
+        tweets = Tweet.includes(user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
+                      .where(user_id:)
+                      .joins(:replies_as_child)
+                      .order(created_at: :desc).offset(offset).limit(limit)
+        total_count = Tweet.where(user_id:).joins(:replies_as_child).count
+        [tweets, total_count]
+      end
+
+      def fetch_user_likes_with_count(user_id, limit, offset)
+        tweets = Tweet.includes(user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
+                      .where(user_id:)
+                      .joins(:replies_as_child)
+                      .order(created_at: :desc).offset(offset).limit(limit)
+        total_count = Tweet.where(user_id:).joins(:replies_as_child).count
         [tweets, total_count]
       end
     end
