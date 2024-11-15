@@ -58,6 +58,8 @@ group :development, :test do
   gem 'rubocop-rspec', require: false
 
   gem 'bullet'
+
+  # gem 'ruby-lsp', require: false
 end
 
 group :development do
