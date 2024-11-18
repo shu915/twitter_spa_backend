@@ -24,8 +24,10 @@ module Api
                                 fetch_all_tweets_with_count(limit, offset)
                               end
 
+        tweets_with_info = tweets_with_info(tweets)
+
         render json: {
-          tweets: tweets.map { |tweet| tweet_with_user_and_image_url(tweet) },
+          tweets: tweets_with_info,
           total_count:
         }, status: :ok
       end
@@ -88,13 +90,14 @@ module Api
                       .limit(limit)
 
         total_count = Tweet.count
+
         [tweets, total_count]
       end
 
       def fetch_user_tweets_with_count(user_id, limit, offset)
         tweets = Tweet.includes(user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
                       .left_joins(:retweets)
-                      .where('tweets.user_id = ? OR retweets.user_id = ?', user_id, user_id)
+                      .where(tweets: { user_id: }).or(Tweet.where(retweets: { user_id: }))
                       .select('tweets.*, COALESCE(retweets.created_at, tweets.created_at) AS sort_date')
                       .order('sort_date DESC')
                       .offset(offset)
@@ -120,6 +123,16 @@ module Api
                       .order(created_at: :desc).offset(offset).limit(limit)
         total_count = Tweet.where(user_id:).joins(:replies_as_child).count
         [tweets, total_count]
+      end
+
+      # ツイートにリツイートやイイネの情報を含める
+      def tweets_with_info(tweets)
+        tweets.map do |tweet|
+          {
+            tweet: tweet_with_user_and_image_url(tweet),
+            my_retweet_id: tweet.retweets.find_by(user: current_api_v1_user)&.id
+          }
+        end
       end
     end
   end

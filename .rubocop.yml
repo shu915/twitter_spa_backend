@@ -24,3 +24,5 @@ Layout/LineLength:
   Max: 200
 RailsSpecificActionName:
   Enabled: false
+Metrics/ClassLength:
+  Max: 150
