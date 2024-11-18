@@ -82,7 +82,7 @@ module Api
       end
 
       def fetch_all_tweets_with_count(limit, offset)
-        tweets = Tweet.includes(user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
+        tweets = Tweet.includes(:retweets, user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
                       .joins('LEFT JOIN (SELECT tweet_id, MAX(created_at) AS latest_retweet_date FROM retweets GROUP BY tweet_id) latest_retweets ON tweets.id = latest_retweets.tweet_id')
                       .select('tweets.*, COALESCE(latest_retweets.latest_retweet_date, tweets.created_at) AS sort_date')
                       .order('sort_date DESC')
@@ -95,7 +95,7 @@ module Api
       end
 
       def fetch_user_tweets_with_count(user_id, limit, offset)
-        tweets = Tweet.includes(user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
+        tweets = Tweet.includes(:retweets, user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
                       .left_joins(:retweets)
                       .where(tweets: { user_id: }).or(Tweet.where(retweets: { user_id: }))
                       .select('tweets.*, COALESCE(retweets.created_at, tweets.created_at) AS sort_date')
@@ -103,12 +103,14 @@ module Api
                       .offset(offset)
                       .limit(limit)
 
-        total_count = Tweet.where(user_id:).count + Retweet.where(user_id:).count
+        total_count = Tweet.left_joins(:retweets)
+                           .where('tweets.user_id = :user_id OR retweets.user_id = :user_id', user_id:).distinct
+                           .count
         [tweets, total_count]
       end
 
       def fetch_user_replies_with_count(user_id, limit, offset)
-        tweets = Tweet.includes(user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
+        tweets = Tweet.includes(:retweets, user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
                       .where(user_id:)
                       .joins(:replies_as_child)
                       .order(created_at: :desc).offset(offset).limit(limit)
@@ -117,7 +119,7 @@ module Api
       end
 
       def fetch_user_likes_with_count(user_id, limit, offset)
-        tweets = Tweet.includes(user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
+        tweets = Tweet.includes(:retweets, user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
                       .where(user_id:)
                       .joins(:replies_as_child)
                       .order(created_at: :desc).offset(offset).limit(limit)
