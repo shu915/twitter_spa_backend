@@ -127,10 +127,12 @@ module Api
 
       # ツイートにリツイートやイイネの情報を含める
       def tweets_with_info(tweets)
+        retweets = Retweet.where(tweet_id: tweets.map(&:id), user: current_api_v1_user).index_by(&:tweet_id)
+
         tweets.map do |tweet|
           {
             tweet: tweet_with_user_and_image_url(tweet),
-            my_retweet_id: tweet.retweets.find_by(user: current_api_v1_user)&.id
+            my_retweet_id: retweets[tweet.id]&.id
           }
         end
       end
