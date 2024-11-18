@@ -81,16 +81,26 @@ module Api
 
       def fetch_all_tweets_with_count(limit, offset)
         tweets = Tweet.includes(user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
-                      .order(created_at: :desc).offset(offset).limit(limit)
+                      .joins('LEFT JOIN (SELECT tweet_id, MAX(created_at) AS latest_retweet_date FROM retweets GROUP BY tweet_id) latest_retweets ON tweets.id = latest_retweets.tweet_id')
+                      .select('tweets.*, COALESCE(latest_retweets.latest_retweet_date, tweets.created_at) AS sort_date')
+                      .order('sort_date DESC')
+                      .offset(offset)
+                      .limit(limit)
+
         total_count = Tweet.count
         [tweets, total_count]
       end
 
       def fetch_user_tweets_with_count(user_id, limit, offset)
         tweets = Tweet.includes(user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
-                      .where(user_id:)
-                      .order(created_at: :desc).offset(offset).limit(limit)
-        total_count = Tweet.where(user_id:).count
+                      .left_joins(:retweets)
+                      .where('tweets.user_id = ? OR retweets.user_id = ?', user_id, user_id)
+                      .select('tweets.*, COALESCE(retweets.created_at, tweets.created_at) AS sort_date')
+                      .order('sort_date DESC')
+                      .offset(offset)
+                      .limit(limit)
+
+        total_count = Tweet.where(user_id:).count + Retweet.where(user_id:).count
         [tweets, total_count]
       end
 
