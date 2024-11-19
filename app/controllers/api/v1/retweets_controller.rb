@@ -8,11 +8,11 @@ module Api
       def create
         tweet = Tweet.find_by(id: params[:tweet_id])
         if tweet.nil?
-          render json: { error: 'ツイートが見つかりません' }, status: :not_found
+          return render json: { error: 'ツイートが見つかりません' }, status: :not_found
         end
 
         if tweet.retweets.exists?(user: current_api_v1_user)
-          render json: { error: '既にリツイート済みです' }, status: :unprocessable_entity
+          return render json: { error: '既にリツイート済みです' }, status: :unprocessable_entity
         end
 
         ActiveRecord::Base.transaction do
@@ -29,12 +29,12 @@ module Api
       def destroy
         tweet = Tweet.find_by(id: params[:tweet_id])
         if tweet.nil?
-          render json: { error: 'ツイートが見つかりません' }, status: :not_found
+          return render json: { error: 'ツイートが見つかりません' }, status: :not_found
         end
 
         retweet = tweet.retweets.find_by(user: current_api_v1_user)
         if retweet.nil?
-          render json: { error: 'リツイートが見つかりません' }, status: :not_found
+          return render json: { error: 'リツイートが見つかりません' }, status: :not_found
         end
 
         ActiveRecord::Base.transaction do
