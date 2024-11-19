@@ -26,3 +26,5 @@ RailsSpecificActionName:
   Enabled: false
 Metrics/ClassLength:
   Max: 150
+Style/IfUnlessModifier:
+  Enabled: false
