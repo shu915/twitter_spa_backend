@@ -12,6 +12,8 @@ class Tweet < ApplicationRecord
 
   validates :content, presence: true, length: { maximum: 140 }
 
+  has_many :retweets, dependent: :destroy
+
   def ancestor_ids
     ids = []
     current_id = id

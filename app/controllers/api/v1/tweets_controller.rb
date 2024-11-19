@@ -24,8 +24,10 @@ module Api
                                 fetch_all_tweets_with_count(limit, offset)
                               end
 
+        tweets_with_info = tweets_with_info(tweets)
+
         render json: {
-          tweets: tweets.map { |tweet| tweet_with_user_and_image_url(tweet) },
+          tweets: tweets_with_info,
           total_count:
         }, status: :ok
       end
@@ -80,22 +82,35 @@ module Api
       end
 
       def fetch_all_tweets_with_count(limit, offset)
-        tweets = Tweet.includes(user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
-                      .order(created_at: :desc).offset(offset).limit(limit)
+        tweets = Tweet.includes(:retweets, user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
+                      .joins('LEFT JOIN (SELECT tweet_id, MAX(created_at) AS latest_retweet_date FROM retweets GROUP BY tweet_id) latest_retweets ON tweets.id = latest_retweets.tweet_id')
+                      .select('tweets.*, COALESCE(latest_retweets.latest_retweet_date, tweets.created_at) AS sort_date')
+                      .order('sort_date DESC')
+                      .offset(offset)
+                      .limit(limit)
+
         total_count = Tweet.count
+
         [tweets, total_count]
       end
 
       def fetch_user_tweets_with_count(user_id, limit, offset)
-        tweets = Tweet.includes(user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
-                      .where(user_id:)
-                      .order(created_at: :desc).offset(offset).limit(limit)
-        total_count = Tweet.where(user_id:).count
+        tweets = Tweet.includes(:retweets, user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
+                      .left_joins(:retweets)
+                      .where(tweets: { user_id: }).or(Tweet.where(retweets: { user_id: }))
+                      .select('tweets.*, COALESCE(retweets.created_at, tweets.created_at) AS sort_date')
+                      .order('sort_date DESC')
+                      .offset(offset)
+                      .limit(limit)
+
+        total_count = Tweet.left_joins(:retweets)
+                           .where('tweets.user_id = :user_id OR retweets.user_id = :user_id', user_id:).distinct
+                           .count
         [tweets, total_count]
       end
 
       def fetch_user_replies_with_count(user_id, limit, offset)
-        tweets = Tweet.includes(user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
+        tweets = Tweet.includes(:retweets, user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
                       .where(user_id:)
                       .joins(:replies_as_child)
                       .order(created_at: :desc).offset(offset).limit(limit)
@@ -104,12 +119,24 @@ module Api
       end
 
       def fetch_user_likes_with_count(user_id, limit, offset)
-        tweets = Tweet.includes(user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
+        tweets = Tweet.includes(:retweets, user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
                       .where(user_id:)
                       .joins(:replies_as_child)
                       .order(created_at: :desc).offset(offset).limit(limit)
         total_count = Tweet.where(user_id:).joins(:replies_as_child).count
         [tweets, total_count]
+      end
+
+      # ツイートにリツイートやイイネの情報を含める
+      def tweets_with_info(tweets)
+        retweets = Retweet.where(tweet_id: tweets.map(&:id), user: current_api_v1_user).index_by(&:tweet_id)
+
+        tweets.map do |tweet|
+          {
+            tweet: tweet_with_user_and_image_url(tweet),
+            my_retweet_id: retweets[tweet.id]&.id
+          }
+        end
       end
     end
   end
