@@ -17,7 +17,7 @@ module Api
                                   fetch_user_tweets_with_count(params[:user_id], limit, offset)
                                 when 'reply'
                                   fetch_user_replies_with_count(params[:user_id], limit, offset)
-                                when 'like' # まだ実装保留中なのでダミーを設置
+                                when 'like'
                                   fetch_user_likes_with_count(params[:user_id], limit, offset)
                                 end
                               else
@@ -119,23 +119,23 @@ module Api
       end
 
       def fetch_user_likes_with_count(user_id, limit, offset)
-        tweets = Tweet.includes(:retweets, user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
-                      .where(user_id:)
-                      .joins(:replies_as_child)
-                      .order(created_at: :desc).offset(offset).limit(limit)
-        total_count = Tweet.where(user_id:).joins(:replies_as_child).count
+        tweets = Tweet.includes(:likes, user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
+                      .joins(:likes)
+                      .where(likes: { user_id: })
+                      .order(created_at: :desc)
+                      .offset(offset)
+                      .limit(limit)
+        total_count = Tweet.where(likes: { user_id: }).joins(:likes).count
         [tweets, total_count]
       end
 
       # ツイートにリツイートやイイネの情報を含める
       def tweets_with_info(tweets)
         retweets = Retweet.where(tweet_id: tweets.map(&:id), user: current_api_v1_user).index_by(&:tweet_id)
-
+        likes = Like.where(tweet_id: tweets.map(&:id), user: current_api_v1_user).index_by(&:tweet_id)
         tweets.map do |tweet|
-          {
-            tweet: tweet_with_user_and_image_url(tweet),
-            my_retweet_id: retweets[tweet.id]&.id
-          }
+          tweet_with_user_and_image_url(tweet)
+            .merge(my_retweet_id: retweets[tweet.id]&.id, my_like_id: likes[tweet.id]&.id)
         end
       end
     end
