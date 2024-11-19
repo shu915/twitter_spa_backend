@@ -8,11 +8,11 @@ module Api
       def create
         tweet = Tweet.find_by(id: params[:tweet_id])
         if tweet.nil?
-          render json: { error: 'ツイートが見つかりません' }, status: :not_found
+          return render json: { error: 'ツイートが見つかりません' }, status: :not_found
         end
 
         if tweet.likes.exists?(user: current_api_v1_user)
-          render json: { error: '既にいいね済みです' }, status: :unprocessable_entity
+          return render json: { error: '既にいいね済みです' }, status: :unprocessable_entity
         end
 
         ActiveRecord::Base.transaction do
@@ -22,17 +22,19 @@ module Api
             likes_count: tweet.reload.likes_count
           }, status: :ok
         end
+      rescue StandardError => e
+        render json: { error: e.message }, status: :unprocessable_entity
       end
 
       def destroy
         tweet = Tweet.find_by(id: params[:tweet_id])
         if tweet.nil?
-          render json: { error: 'ツイートが見つかりません' }, status: :not_found
+          return render json: { error: 'ツイートが見つかりません' }, status: :not_found
         end
 
-        like = tweet.likes.find_by(user: current_api_v1_user)
+        like = tweet.likes.lock.find_by(user: current_api_v1_user)
         if like.nil?
-          render json: { error: 'いいねが見つかりません' }, status: :not_found
+          return render json: { error: 'いいねが見つかりません' }, status: :not_found
         end
 
         ActiveRecord::Base.transaction do
@@ -42,6 +44,8 @@ module Api
             likes_count: tweet.reload.likes_count
           }, status: :ok
         end
+      rescue StandardError => e
+        render json: { error: e.message }, status: :unprocessable_entity
       end
     end
   end
