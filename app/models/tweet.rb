@@ -13,6 +13,7 @@ class Tweet < ApplicationRecord
   validates :content, presence: true, length: { maximum: 140 }
 
   has_many :retweets, dependent: :destroy
+  has_many :likes, dependent: :destroy
 
   def ancestor_ids
     ids = []
