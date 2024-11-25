@@ -20,6 +20,8 @@ module Api
                                 when 'like'
                                   fetch_user_likes_with_count(params[:user_id], limit, offset)
                                 end
+                              elsif params[:is_following]
+                                fetch_following_tweets_with_count(limit, offset)
                               else
                                 fetch_all_tweets_with_count(limit, offset)
                               end
@@ -126,6 +128,17 @@ module Api
                       .offset(offset)
                       .limit(limit)
         total_count = Tweet.where(likes: { user_id: }).joins(:likes).count
+        [tweets, total_count]
+      end
+
+      def fetch_following_tweets_with_count(limit, offset)
+        following_user_ids = current_api_v1_user.active_follows.pluck(:following_id)
+        tweets = Tweet.includes(user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
+                      .where(user_id: following_user_ids)
+                      .order(created_at: :desc)
+                      .offset(offset)
+                      .limit(limit)
+        total_count = Tweet.where(user_id: following_user_ids).count
         [tweets, total_count]
       end
 
