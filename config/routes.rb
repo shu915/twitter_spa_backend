@@ -7,6 +7,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :users, only: %i[show] do
         resources :tweets, only: %i[index]
+        resources :follows, only: %i[index create destroy]
       end
 
       mount_devise_token_auth_for 'User', at: 'users', controllers: {
