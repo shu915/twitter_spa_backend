@@ -15,9 +15,9 @@ module Api
                   target_user.followers.includes(profile_image_attachment: :blob)
                 end
         following_ids = current_api_v1_user.active_follows
-                                            .where(following: users)
-                                            .pluck(:following_id)
-                                            .to_set
+                                           .where(following: users)
+                                           .pluck(:following_id)
+                                           .to_set
         render json: users.map { |u|
           u.as_json(only: %i[id account_name display_name bio])
            .merge(
@@ -31,13 +31,13 @@ module Api
         user = User.find(params[:user_id])
 
         if user.id == current_api_v1_user.id
-          render json: { error: '自分自身をフォローすることはできません' }, 
+          render json: { error: '自分自身をフォローすることはできません' },
                  status: :unprocessable_entity
           return
         end
 
         if current_api_v1_user.active_follows.exists?(following: user)
-          render json: { error: '既にフォロー済みです' }, 
+          render json: { error: '既にフォロー済みです' },
                  status: :unprocessable_entity
           return
         end
@@ -50,7 +50,7 @@ module Api
         follow = current_api_v1_user.active_follows.find_by(following: user)
 
         if follow.nil?
-          render json: { error: 'フォロー関係が存在しません' }, 
+          render json: { error: 'フォロー関係が存在しません' },
                  status: :not_found
           return
         end

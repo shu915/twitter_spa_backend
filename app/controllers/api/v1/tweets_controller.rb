@@ -123,7 +123,7 @@ module Api
       def fetch_user_likes_with_count(user_id, limit, offset)
         tweets = Tweet.includes(:likes, user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
                       .joins(:likes)
-                      .where(likes: { user_id: current_api_v1_user.id})
+                      .where(likes: { user_id: current_api_v1_user.id })
                       .order(created_at: :desc)
                       .offset(offset)
                       .limit(limit)
