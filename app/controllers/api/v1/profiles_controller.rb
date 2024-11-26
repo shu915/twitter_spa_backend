@@ -11,7 +11,7 @@ module Api
       def show
         user = User.find(params[:id])
 
-        following_id = current_api_v1_user.active_follows.find_by(following: user)&.id
+        following_id = current_api_v1_user.active_follows.includes(:following).find_by(following: user)&.id
 
         render json: user.as_json.merge(
           header_image_url: user.header_image.attached? ? url_for(user.header_image) : nil,
