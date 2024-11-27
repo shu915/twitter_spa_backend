@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_11_22_043206) do
+ActiveRecord::Schema[7.0].define(version: 2024_11_27_002041) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -67,6 +67,18 @@ ActiveRecord::Schema[7.0].define(version: 2024_11_22_043206) do
     t.index ["tweet_id"], name: "index_likes_on_tweet_id"
     t.index ["user_id", "tweet_id"], name: "index_likes_on_user_id_and_tweet_id", unique: true
     t.index ["user_id"], name: "index_likes_on_user_id"
+  end
+
+  create_table "notices", force: :cascade do |t|
+    t.bigint "sender_id", null: false
+    t.bigint "receiver_id", null: false
+    t.string "notifiable_type"
+    t.bigint "notifiable_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["notifiable_type", "notifiable_id"], name: "index_notices_on_notifiable"
+    t.index ["receiver_id"], name: "index_notices_on_receiver_id"
+    t.index ["sender_id"], name: "index_notices_on_sender_id"
   end
 
   create_table "replies", force: :cascade do |t|
@@ -138,6 +150,8 @@ ActiveRecord::Schema[7.0].define(version: 2024_11_22_043206) do
   add_foreign_key "images", "tweets"
   add_foreign_key "likes", "tweets"
   add_foreign_key "likes", "users"
+  add_foreign_key "notices", "users", column: "receiver_id"
+  add_foreign_key "notices", "users", column: "sender_id"
   add_foreign_key "replies", "tweets", column: "child_tweet_id"
   add_foreign_key "replies", "tweets", column: "parent_tweet_id"
   add_foreign_key "retweets", "tweets"

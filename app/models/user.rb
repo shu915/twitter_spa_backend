@@ -41,6 +41,9 @@ class User < ApplicationRecord
   has_many :passive_follows, foreign_key: :following_id, dependent: :destroy, class_name: 'Follow', inverse_of: :following
   has_many :followers, through: :passive_follows, source: :follower
 
+  has_many :sent_notices, foreign_key: :sender_id, dependent: :destroy, class_name: 'Notice', inverse_of: :sender
+  has_many :received_notices, foreign_key: :receiver_id, dependent: :destroy, class_name: 'Notice', inverse_of: :receiver
+
   def profile_image_url
     Rails.application.routes.url_helpers.rails_blob_url(profile_image) if profile_image.attached?
   end
