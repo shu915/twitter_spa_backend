@@ -3,4 +3,14 @@
 class Like < ApplicationRecord
   belongs_to :user
   belongs_to :tweet, counter_cache: true
+
+  has_many :notices, as: :notifiable, dependent: :destroy
+
+  after_create_commit :create_notice
+
+  private
+
+  def create_notice
+    Notice.create(sender: user, receiver: tweet.user, notifiable_type: 'Like', notifiable_id: id)
+  end
 end

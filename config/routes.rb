@@ -22,6 +22,7 @@ Rails.application.routes.draw do
       end
       resources :images, only: [:create]
       resources :profiles, only: %i[show update]
+      resources :notices, only: [:index]
     end
   end
 end
