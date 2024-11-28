@@ -6,11 +6,7 @@ class Like < ApplicationRecord
 
   has_many :notices, as: :notifiable, dependent: :destroy
 
-  after_create_commit :create_notice
-
-  private
-
-  def create_notice
-    Notice.create(sender: user, receiver: tweet.user, notifiable_type: 'Like', notifiable_id: id)
+  after_create_commit do
+    notices.create!(sender: user, receiver: tweet.user)
   end
 end

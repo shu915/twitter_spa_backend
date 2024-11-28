@@ -6,11 +6,7 @@ class Reply < ApplicationRecord
 
   has_many :notices, as: :notifiable, dependent: :destroy
 
-  after_create_commit :create_notice
-
-  private
-
-  def create_notice
-    Notice.create(sender: child_tweet.user, receiver: parent_tweet.user, notifiable_type: 'Reply', notifiable_id: id)
+  after_create_commit do
+    notices.create!(sender: child_tweet.user, receiver: parent_tweet.user)
   end
 end

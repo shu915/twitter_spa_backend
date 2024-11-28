@@ -6,11 +6,7 @@ class Follow < ApplicationRecord
 
   has_many :notices, as: :notifiable, dependent: :destroy
 
-  after_create_commit :create_notice
-
-  private
-
-  def create_notice
-    Notice.create(sender: follower, receiver: following, notifiable_type: 'Follow', notifiable_id: id)
+  after_create_commit do
+    notices.create!(sender: follower, receiver: following)
   end
 end
