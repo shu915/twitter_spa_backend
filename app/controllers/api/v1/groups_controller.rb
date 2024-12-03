@@ -18,7 +18,7 @@ module Api
               id: other_user.id,
               display_name: other_user.display_name,
               account_name: other_user.account_name,
-              profile_image_url: other_user.profile_image_url,
+              profile_image_url: other_user.profile_image_url
             },
             last_message: group.messages.last.content,
             last_message_created_at: group.messages.last.created_at.strftime('%m月%d日 %H:%M')

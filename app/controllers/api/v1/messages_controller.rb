@@ -7,7 +7,6 @@ module Api
         messages = Message.where(group_id: params[:group_id])
         render json: messages
       end
-
     end
   end
 end
