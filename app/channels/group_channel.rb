@@ -26,7 +26,6 @@ class GroupChannel < ApplicationCable::Channel
         }
       )
     else
-      Rails.logger.error "Message save failed: #{message.errors.full_messages.join(', ')}"
       ActionCable.server.broadcast(
         "group_#{params[:group_id]}",
         { error: message.errors.full_messages }

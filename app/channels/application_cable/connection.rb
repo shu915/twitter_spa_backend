@@ -14,7 +14,6 @@ module ApplicationCable
       token = request.params[:token]
       client_id = request.params[:client_id]
       uid = request.params[:uid]
-      Rails.logger.info "Token: #{token}, Client ID: #{client_id}, UID: #{uid}"
 
       user = User.find_by(uid:)
       if user&.valid_token?(token, client_id)
