@@ -10,10 +10,9 @@ class GroupChannel < ApplicationCable::Channel
   end
 
   def speak(data)
-    message = Message.new(
+    message = current_user.messages.new(
       content: data['message'],
-      group_id: params[:group_id],
-      user_id: current_user.id
+      group_id: params[:group_id]
     )
 
     if message.save
