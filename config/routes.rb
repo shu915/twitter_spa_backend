@@ -2,6 +2,7 @@
 
 Rails.application.routes.draw do
   mount LetterOpenerWeb::Engine, at: '/letter_opener' if Rails.env.development?
+  mount ActionCable.server => '/cable'
 
   namespace :api do
     namespace :v1 do
@@ -23,6 +24,9 @@ Rails.application.routes.draw do
       resources :images, only: [:create]
       resources :profiles, only: %i[show update]
       resources :notices, only: [:index]
+      resources :groups, only: %i[create index] do
+        resources :messages, only: %i[index]
+      end
     end
   end
 end
