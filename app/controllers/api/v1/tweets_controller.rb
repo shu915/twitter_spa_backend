@@ -145,21 +145,23 @@ module Api
       end
 
       def fetch_bookmarks_with_count(limit, offset)
-        tweets = Tweet.includes(:bookmarks, user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
-                      .joins(:bookmarks)
-                      .where(bookmarks: { user_id: current_api_v1_user.id })
-                      .order(created_at: :desc)
-                      .offset(offset)
-                      .limit(limit)
-        total_count = Tweet.where(bookmarks: { user_id: current_api_v1_user.id }).joins(:bookmarks).count
+        base_query = Tweet.joins(:bookmarks)
+                          .where(bookmarks: { user_id: current_api_v1_user.id })
+
+        tweets = base_query.order(created_at: :desc)
+                           .offset(offset)
+                           .limit(limit)
+
+        total_count = base_query.count
         [tweets, total_count]
       end
 
       # ツイートにリツイートやイイネの情報を含める
       def tweets_with_info(tweets)
-        retweets = Retweet.where(tweet_id: tweets.map(&:id), user: current_api_v1_user).index_by(&:tweet_id)
-        likes = Like.where(tweet_id: tweets.map(&:id), user: current_api_v1_user).index_by(&:tweet_id)
-        bookmarks = Bookmark.where(tweet_id: tweets.map(&:id), user: current_api_v1_user).index_by(&:tweet_id)
+        tweet_ids = tweets.map(&:id)
+        retweets = Retweet.where(tweet_id: tweet_ids, user: current_api_v1_user).index_by(&:tweet_id)
+        likes = Like.where(tweet_id: tweet_ids, user: current_api_v1_user).index_by(&:tweet_id)
+        bookmarks = Bookmark.where(tweet_id: tweet_ids, user: current_api_v1_user).index_by(&:tweet_id)
         tweets.map do |tweet|
           tweet_with_user_and_image_url(tweet)
             .merge(my_retweet_id: retweets[tweet.id]&.id, my_like_id: likes[tweet.id]&.id, my_bookmark_id: bookmarks[tweet.id]&.id)
