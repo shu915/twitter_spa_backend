@@ -20,6 +20,7 @@ Rails.application.routes.draw do
         resources :replies, only: %i[create]
         resources :retweets, only: %i[create destroy]
         resources :likes, only: %i[create destroy]
+        resources :bookmarks, only: %i[create destroy]
       end
       resources :images, only: [:create]
       resources :profiles, only: %i[show update]
@@ -27,6 +28,7 @@ Rails.application.routes.draw do
       resources :groups, only: %i[create index] do
         resources :messages, only: %i[index]
       end
+      resources :bookmarks, only: %i[index]
     end
   end
 end

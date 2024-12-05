@@ -2,7 +2,7 @@
 
 module Api
   module V1
-    class LikesController < ApplicationController
+    class BookmarksController < ApplicationController
       before_action :authenticate_api_v1_user!
 
       def create
@@ -11,15 +11,15 @@ module Api
           return render json: { error: 'ツイートが見つかりません' }, status: :not_found
         end
 
-        if tweet.likes.exists?(user: current_api_v1_user)
-          return render json: { error: '既にいいね済みです' }, status: :unprocessable_entity
+        if tweet.bookmarks.exists?(user: current_api_v1_user)
+          return render json: { error: '既にブックマーク済みです' }, status: :unprocessable_entity
         end
 
         ActiveRecord::Base.transaction do
-          like = tweet.likes.create!(user: current_api_v1_user)
+          bookmark = tweet.bookmarks.create!(user: current_api_v1_user)
           render json: {
-            my_like_id: like.id,
-            likes_count: tweet.reload.likes_count
+            my_bookmark_id: bookmark.id,
+            bookmarks_count: tweet.reload.bookmarks_count
           }, status: :ok
         end
       rescue ActiveRecord::RecordInvalid => e
@@ -34,16 +34,16 @@ module Api
           return render json: { error: 'ツイートが見つかりません' }, status: :not_found
         end
 
-        like = tweet.likes.lock.find_by(user: current_api_v1_user)
-        if like.nil?
-          return render json: { error: 'いいねが見つかりません' }, status: :not_found
+        bookmark = tweet.bookmarks.lock.find_by(user: current_api_v1_user)
+        if bookmark.nil?
+          return render json: { error: 'ブックマークが見つかりません' }, status: :not_found
         end
 
         ActiveRecord::Base.transaction do
-          like.destroy!
+          bookmark.destroy!
           render json: {
-            my_like_id: nil,
-            likes_count: tweet.reload.likes_count
+            my_bookmark_id: nil,
+            bookmarks_count: tweet.reload.bookmarks_count
           }, status: :ok
         end
       rescue ActiveRecord::RecordInvalid => e
