@@ -24,6 +24,8 @@ module Api
         end
       rescue ActiveRecord::RecordInvalid => e
         render json: { error: e.message }, status: :unprocessable_entity
+      rescue ActiveRecord::RecordNotFound => e
+        render json: { error: e.message }, status: :not_found
       end
 
       def destroy
@@ -44,8 +46,10 @@ module Api
             retweets_count: tweet.reload.retweets_count
           }, status: :ok
         end
-      rescue StandardError => e
+      rescue ActiveRecord::RecordInvalid => e
         render json: { error: e.message }, status: :unprocessable_entity
+      rescue ActiveRecord::RecordNotFound => e
+        render json: { error: e.message }, status: :not_found
       end
     end
   end
