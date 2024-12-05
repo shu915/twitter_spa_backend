@@ -49,6 +49,8 @@ class User < ApplicationRecord
 
   has_many :messages, dependent: :destroy
 
+  has_many :bookmarks, dependent: :destroy
+
   def profile_image_url
     Rails.application.routes.url_helpers.rails_blob_url(profile_image) if profile_image.attached?
   end

@@ -14,7 +14,7 @@ class Tweet < ApplicationRecord
 
   has_many :retweets, dependent: :destroy
   has_many :likes, dependent: :destroy
-
+  has_many :bookmarks, dependent: :destroy
   def ancestor_ids
     ids = []
     current_id = id
