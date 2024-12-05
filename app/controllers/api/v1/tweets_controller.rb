@@ -147,6 +147,7 @@ module Api
       def fetch_bookmarks_with_count(limit, offset)
         base_query = Tweet.joins(:bookmarks)
                           .where(bookmarks: { user_id: current_api_v1_user.id })
+                          .includes(:retweets, :likes, :bookmarks, user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
 
         tweets = base_query.order(created_at: :desc)
                            .offset(offset)
