@@ -22,6 +22,8 @@ module Api
                                 end
                               elsif params[:is_following]
                                 fetch_following_tweets_with_count(limit, offset)
+                              elsif params[:is_bookmarks]
+                                fetch_bookmarks_with_count(limit, offset)
                               else
                                 fetch_all_tweets_with_count(limit, offset)
                               end
@@ -142,13 +144,28 @@ module Api
         [tweets, total_count]
       end
 
+      def fetch_bookmarks_with_count(limit, offset)
+        base_query = Tweet.joins(:bookmarks)
+                          .where(bookmarks: { user_id: current_api_v1_user.id })
+                          .includes(:retweets, :likes, :bookmarks, user: [profile_image_attachment: :blob], image: [file_attachment: :blob])
+
+        tweets = base_query.order(created_at: :desc)
+                           .offset(offset)
+                           .limit(limit)
+
+        total_count = base_query.count
+        [tweets, total_count]
+      end
+
       # ツイートにリツイートやイイネの情報を含める
       def tweets_with_info(tweets)
-        retweets = Retweet.where(tweet_id: tweets.map(&:id), user: current_api_v1_user).index_by(&:tweet_id)
-        likes = Like.where(tweet_id: tweets.map(&:id), user: current_api_v1_user).index_by(&:tweet_id)
+        tweet_ids = tweets.map(&:id)
+        retweets = Retweet.where(tweet_id: tweet_ids, user: current_api_v1_user).index_by(&:tweet_id)
+        likes = Like.where(tweet_id: tweet_ids, user: current_api_v1_user).index_by(&:tweet_id)
+        bookmarks = Bookmark.where(tweet_id: tweet_ids, user: current_api_v1_user).index_by(&:tweet_id)
         tweets.map do |tweet|
           tweet_with_user_and_image_url(tweet)
-            .merge(my_retweet_id: retweets[tweet.id]&.id, my_like_id: likes[tweet.id]&.id)
+            .merge(my_retweet_id: retweets[tweet.id]&.id, my_like_id: likes[tweet.id]&.id, my_bookmark_id: bookmarks[tweet.id]&.id)
         end
       end
     end
