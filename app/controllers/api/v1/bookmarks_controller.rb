@@ -6,7 +6,7 @@ module Api
       before_action :authenticate_api_v1_user!
 
       def create
-        tweet = Tweet.find_by(id: params[:tweet_id])
+        tweet = Tweet.find(params[:tweet_id])
         if tweet.nil?
           return render json: { error: 'ツイートが見つかりません' }, status: :not_found
         end
@@ -29,7 +29,7 @@ module Api
       end
 
       def destroy
-        tweet = Tweet.find_by(id: params[:tweet_id])
+        tweet = Tweet.find(params[:tweet_id])
         if tweet.nil?
           return render json: { error: 'ツイートが見つかりません' }, status: :not_found
         end
