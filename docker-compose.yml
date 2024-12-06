@@ -19,7 +19,7 @@ services:
     depends_on:
       - db
     environment:
-      - DEFAULT_CONFIRM_SUCCESS_URL=http://localhost:5173/tweets
+      - DEFAULT_CONFIRM_SUCCESS_URL=http://localhost:5173/
 volumes:
   bundle:
   db:

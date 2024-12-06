@@ -19,6 +19,15 @@ module Api
           end
         end
 
+        def destroy
+          user = current_api_v1_user
+          if user.destroy
+            render json: { message: '退会成功' }, status: :ok
+          else
+            render json: { message: '退会失敗', errors: user.errors.messages }, status: :unprocessable_entity
+          end
+        end
+
         private
 
         def sign_up_params
